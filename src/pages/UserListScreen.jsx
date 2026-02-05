@@ -3,6 +3,10 @@ import { QrCode } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import StatCard from '../components/StatsCard';
 import UserList from '../components/UserList';
+import ScanSuccessModal from '../components/ScanSuccessModal';
+import ScanFailModal from '../components/ScanFailModal';
+import InvalidQrModal from '../components/InvalidQrModal';
+import AlreadyCheckedInModal from '../components/AlreadyCheckedInModal';
 
 const UserListScreen = () => {
   // Mock data
@@ -39,6 +43,10 @@ const UserListScreen = () => {
 
       {/* User List Section - Grows to fill remaining space */}
      <UserList/>
+     {/* <ScanSuccessModal isOpen={true}  /> */}
+     {/* <ScanFailModal isOpen={true}/> */}
+     {/* <InvalidQrModal isOpen={true}/> */}
+     {/* <AlreadyCheckedInModal isOpen={true}/> */}
     </div>
   );
 };
