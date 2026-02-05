@@ -1,6 +1,7 @@
 import React from 'react';
 import { QrCode } from 'lucide-react';
 import qrcodesvg from "../assets/qrcodesvg.svg"
+import { useNavigate } from 'react-router-dom';
 
 const UserRow = ({ id, name, time }) => (
   <div className="flex items-center justify-between py-3.5 px-2 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors cursor-pointer group">
@@ -19,6 +20,7 @@ const UserRow = ({ id, name, time }) => (
 );
 
 const UserList = () => {
+  const navigate = useNavigate()
   const users = [
     { id: '01', name: 'John Smith', time: '09:15 am' },
     { id: '02', name: 'Alex Johnson', time: '09:10 am' },
@@ -67,7 +69,13 @@ const UserList = () => {
 
         {/* BUTTON */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
-  <button className="w-[66px] h-[66px] rounded-[20px] flex items-center justify-center shadow-2xl border border-white/10 relative active:scale-95 transition-transform group bg-[radial-gradient(50%_50%_at_50%_50%,#254A88_0%,#1A3460_57%,#040910_100%)]">
+  <button className="w-[66px] h-[66px] rounded-[20px] flex items-center justify-center shadow-2xl border border-white/10 relative active:scale-95 transition-transform group bg-[radial-gradient(50%_50%_at_50%_50%,#254A88_0%,#1A3460_57%,#040910_100%)]"
+   onClick={() =>
+   {
+    navigate("/scanner")
+   }
+   }
+  >
     
     {/* Your Icon */}
     <img src={qrcodesvg} alt="Scan QR" className="w-8 h-8 z-10" />
