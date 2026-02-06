@@ -80,7 +80,7 @@ async function zoom() {
           
           navigate("/home",
           {
-            state: { scanStatus: "success"   , result: result.data}
+            state: { scanStatus: "success"   , result: result.data }
           }
         );
       
