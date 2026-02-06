@@ -1,121 +1,184 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Flashlight } from 'lucide-react';
-import bgCrop from "../assets/bgCroped.png"; 
+import QrScanner from 'qr-scanner';
+import RAV4 from "../assets/rav4.svg"; 
+import { useNavigate } from 'react-router-dom';
 
 const ScannerPage = () => {
   const [isFlashOn, setIsFlashOn] = useState(false);
   const videoRef = useRef(null);
+  const scannerRef = useRef(null);
+  const overlayRef = useRef(null);
+  const navigate = useNavigate();
+const [zoomLevel, setZoomLevel] = useState(1)
+const trackRef = useRef(null);
+
+
+async function zoom() {
+  console.log("Zoom button clicked");
+  const track = trackRef.current;
+
+   if (!track) return;
+   const capabilities = track.getCapabilities();
+   if (!capabilities.zoom) {
+     alert("Zoom not supported on this device/camera.");
+     return;
+   } 
+
+  try {
+        let newZoom = zoomLevel + 0.5;
+
+        
+    if (newZoom > capabilities.zoom.max) {
+      newZoom = capabilities.zoom.min;
+    }
+    await track.applyConstraints({
+      advanced: [{ zoom: newZoom }]
+    });
+ setZoomLevel(newZoom);
+  } catch (error) {
+       console.error("Zoom error:", err);
+  }
+
+}
+
+
+
+
+
+
+  const toggleFlash = async () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const track = videoRef.current.srcObject.getVideoTracks()[0];
+      const capabilities = track.getCapabilities();
+      if (capabilities.torch) {
+        try {
+          await track.applyConstraints({ advanced: [{ torch: !isFlashOn }] });
+          setIsFlashOn(!isFlashOn);
+        } catch (err) {
+          console.error("Flashlight error:", err);
+        }
+      } else {
+        alert("Flashlight not supported on this device/camera.");
+      }
+    }
+  };
 
   useEffect(() => {
-    let stream;
+    const video = videoRef.current;
+    const overlay = overlayRef.current;
+    
+    const qrScanner = new QrScanner(
+      video,
+      (result) => {
+      
+        console.log("QR Code detected:", result);
+        if(result) {
 
-    const startCamera = async () => {
-      try {
-        // Request the back camera specifically ('environment')
-        stream = await navigator.mediaDevices.getUserMedia({ 
-            video: { 
-                facingMode: "environment" 
-            } 
-        });
-        
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          // Wait for metadata to load to prevent layout shifts
-          videoRef.current.onloadedmetadata = () => {
-            videoRef.current.play().catch(err => console.error("Play error:", err));
-          };
-        }
-      } catch (error) {
-        console.error("Error accessing camera:", error);
+          console.log("QR Code detected:", result);
+          
+          
+          navigate("/home",
+          {
+            state: { scanStatus: "success"   , result: result.data}
+          }
+        );
+      
+      
       }
-    };
+      },
+      {
+        returnDetailedScanResult: true,
+        highlightScanRegion: true,
+        highlightCodeOutline: true,
+        overlay: overlay, 
+      }
+    );
 
-    startCamera();
+    scannerRef.current = qrScanner;
+    qrScanner.start().catch((err) => console.error("QR Scanner error:", err));
 
-    // Cleanup function to stop camera when leaving page
     return () => {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
+      qrScanner.stop();
+      qrScanner.destroy();
     };
-  }, []);
+  }, [navigate]);
+
+
+
+
 
   return (
+    // MAIN CONTAINER: Fixed to screen height, no scrolling
     <div className="relative h-screen w-full overflow-hidden bg-black font-sans">
       
-      {/* 1. BACKGROUND LAYER */}
-      <div className="absolute inset-0 z-0">
-        <img 
-          src={bgCrop} 
-          alt="Toyota RAV4 Background" 
-          className="h-full w-full object-cover"
-        />
-        {/* Dark overlay to make text pop */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/20" />
-      </div>
+      {/* 1. Camera Feed */}
+      <video
+        ref={videoRef}
+        className="absolute top-0 left-0 w-full h-full object-cover"
+        playsInline
+        muted
+      ></video>
 
-      {/* 2. MAIN UI CONTAINER */}
-      <div className="relative z-10 flex h-full flex-col p-6">
+      {/* 2. Scanner Highlight Overlay */}
+      <div 
+        ref={overlayRef} 
+        className="absolute top-0 left-0 w-full h-full pointer-events-none"
+        style={{ filter: 'hue-rotate(200deg) brightness(1.5)' }}
+      ></div>
+
+
+
+      {/* 3. UI Layer: Flex column to manage vertical space */}
+      <div className="absolute inset-0 z-10 flex flex-col items-center pointer-events-none">
         
-        {/* CENTER SECTION */}
-        <div className="flex-1 flex flex-col items-center justify-center gap-8 -mt-20">
-            
-            {/* Title */}
-            <div className="text-center space-y-1">
-                <h1 className="text-4xl font-black tracking-[0.4em] text-white/90 drop-shadow-md">
-                    RAV 4
-                </h1>
-                <p className="text-[#EB0A1E] font-medium text-lg tracking-wide">
-                    2026 الجديدة كلياً
-                </p>
-            </div>
-
-            {/* SCANNER FRAME SECTION */}
-            <div className="relative">
-                
-                {/* A. The White Corners Overlay (SVG) */}
-                {/* This sits ON TOP of the video to give the scanner look */}
-                <div className="absolute -inset-6 pointer-events-none z-20">
-                    <svg className="w-full h-full text-white" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        <path d="M 25 10 L 15 10 Q 10 10 10 25 L 10 35" />
-                        <path d="M 75 10 L 85 10 Q 90 10 90 25 L 90 35" />
-                        <path d="M 10 65 L 10 75 Q 10 90 25 90 L 35 90" />
-                        <path d="M 90 65 L 90 75 Q 90 90 75 90 L 65 90" />
-                    </svg>
-                </div>
-
-                {/* B. The Video Container */}
-                {/* 'overflow-hidden' + 'rounded-xl' crops the video to rounded corners */}
-                <div className="h-48 w-48 bg-black/50 backdrop-blur-sm rounded-xl shadow-2xl overflow-hidden border border-white/10 relative">
-                    <video
-                        ref={videoRef}
-                        // 'object-cover' forces the video to fill the square completely
-                        className="h-full w-full object-cover" 
-                        playsInline
-                        muted
-                    ></video>
-                </div>
-            </div>
-
-            {/* CONTROLS */}
-            <div className="flex h-12 w-48 items-center rounded-full bg-white/90 backdrop-blur-md shadow-lg px-2">
-                <button 
-                    onClick={() => setIsFlashOn(!isFlashOn)}
-                    className={`flex-1 flex justify-center items-center h-full rounded-l-full transition-colors ${isFlashOn ? 'text-yellow-600' : 'text-gray-800'}`}
-                >
-                    <Flashlight size={20} fill={isFlashOn ? "currentColor" : "none"} />
-                </button>
-                <div className="h-5 w-[1px] bg-gray-300"></div>
-                <button className="flex-1 flex justify-center items-center h-full text-sm font-bold text-gray-800">
-                    1x
-                </button>
-            </div>
-
-            {/* User Name */}
-            <p className="text-white/60 font-bold tracking-widest text-sm uppercase">
-                Daniel Cooper
-            </p>
+        {/* --- Top Header --- */}
+        <div className="mt-8 sm:mt-12 flex-none">
+          <img src={RAV4} alt="RAV4" className="h-8 drop-shadow-md" />
         </div>
+
+        {/* --- Main Content Area (Takes all remaining space) --- */}
+        <div className="flex-1 flex flex-col items-center justify-center w-full">
+            
+            {/* A. The Viewfinder Box */}
+            <div className="relative w-64 h-64 sm:w-72 sm:h-72">
+                {/* Corners */}
+                <div className="absolute top-0 left-0 w-8 h-8 border-t-[3px] border-l-[3px] border-gray-300 rounded-tl-2xl"></div>
+                <div className="absolute top-0 right-0 w-8 h-8 border-t-[3px] border-r-[3px] border-gray-300 rounded-tr-2xl"></div>
+                <div className="absolute bottom-0 left-0 w-8 h-8 border-b-[3px] border-l-[3px] border-gray-300 rounded-bl-2xl"></div>
+                <div className="absolute bottom-0 right-0 w-8 h-8 border-b-[3px] border-r-[3px] border-gray-300 rounded-br-2xl"></div>
+
+                {/* Crosshair & Text */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-[120%] h-[2px] border-t-[2px] border-dashed border-blue-400 absolute opacity-60"></div>
+                    <div className="h-[120%] w-[2px] border-l-[2px] border-dashed border-blue-400 absolute opacity-60"></div>
+                    <div className="relative z-10 text-blue-400 text-lg font-light tracking-widest animate-pulse drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]">
+                        
+                    </div>
+                </div>
+            </div>
+
+            {/* B. Footer Controls (Immediately below scanner) */}
+            <div className="mt-12 pointer-events-auto">
+                <div className="flex items-center justify-between w-[20em] h-14 bg-gray-200/90 backdrop-blur-sm rounded-full px-1 shadow-lg border border-white/20">
+                    <button 
+                        onClick={toggleFlash}
+                        className={`flex-1 h-full flex items-center justify-center rounded-l-full transition-colors ${isFlashOn ? 'text-yellow-600' : 'text-gray-700'}`}
+                    >
+                        <Flashlight size={24} fill={isFlashOn ? "currentColor" : "none"} />
+                    </button>
+                    <div className="w-[1px] h-6 bg-gray-400 opacity-50"></div>
+                    <button className="flex-1 h-full flex items-center justify-center text-gray-900 font-bold text-lg rounded-r-full"
+                    
+                    onClick={zoom}
+                    >
+                        1x
+                    </button>
+                </div>
+            </div>
+
+        </div> 
+        {/* End of Main Content Area */}
 
       </div>
     </div>
