@@ -16,3 +16,9 @@ export const fetchParticipants = async () => {
     throw error;
   }
 }
+
+export const createParticipant = async (participantData) => {
+
+  const response = await axiosInstance.post("/participants/create", participantData);
+  return response.data;
+}
