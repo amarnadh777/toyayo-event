@@ -3,6 +3,7 @@ import { Flashlight } from 'lucide-react';
 import QrScanner from 'qr-scanner';
 import RAV4 from "../assets/rav4.svg"; 
 import { useNavigate } from 'react-router-dom';
+import { scanParticipant } from '../api/api';
 
 const ScannerPage = () => {
   const [isFlashOn, setIsFlashOn] = useState(false);
@@ -65,44 +66,88 @@ async function zoom() {
   };
 
   useEffect(() => {
-    const video = videoRef.current;
-    const overlay = overlayRef.current;
-    
-    const qrScanner = new QrScanner(
-      video,
-      (result) => {
-      
-        console.log("QR Code detected:", result);
-        if(result) {
 
-          console.log("QR Code detected:", result);
-          
-          
-          navigate("/home",
-          {
-            state: { scanStatus: "success"   , result: result.data }
+  const video = videoRef.current;
+  const overlay = overlayRef.current;
+
+  let isScanning = true; // prevent multiple scans
+
+  const qrScanner = new QrScanner(
+
+    video,
+
+    async (result) => {
+
+      // stop if already processing
+      if (!isScanning) return;
+
+      isScanning = false;
+
+      try {
+
+        const qrCode = result.data;
+
+        console.log("QR detected:", qrCode);
+
+        // call backend API
+        const response = await scanParticipant(qrCode);
+
+        console.log("API response:", response);
+
+        // stop camera after scan
+        await qrScanner.stop();
+
+        // navigate with correct status
+        navigate("/home", {
+          state: {
+            scanStatus: response.result, // success / invalid_qrcode / already_checked_in
+            participant: response.participant || null,
+            message: response.message
           }
-        );
-      
-      
+        });
+
+      } catch (error) {
+
+        console.error("Scan API error:", error);
+
+        await qrScanner.stop();
+
+        navigate("/home", {
+          state: {
+            scanStatus: "server_error",
+            message: "Server error"
+          }
+        });
+
       }
-      },
-      {
-        returnDetailedScanResult: true,
-        highlightScanRegion: true,
-        highlightCodeOutline: true,
-        overlay: overlay, 
-      }
+
+    },
+
+    {
+      returnDetailedScanResult: true,
+      highlightScanRegion: true,
+      highlightCodeOutline: true,
+      overlay: overlay
+    }
+
+  );
+
+  scannerRef.current = qrScanner;
+
+  qrScanner.start()
+    .catch((err) =>
+      console.error("QR Scanner error:", err)
     );
 
-    scannerRef.current = qrScanner;
-    qrScanner.start().catch((err) => console.error("QR Scanner error:", err));
+  return () => {
 
-    return () => {
-      qrScanner.stop();
-      qrScanner.destroy();
-    };
-  }, [navigate]);
+    qrScanner.stop();
+    qrScanner.destroy();
+
+  };
+
+}, [navigate]);
+
 
 
 

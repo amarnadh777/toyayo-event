@@ -19,24 +19,9 @@ const UserRow = ({ id, name, time }) => (
   </div>
 );
 
-const UserList = () => {
+const UserList = ({users}) => {
   const navigate = useNavigate()
-  const users = [
-    { id: '01', name: 'John Smith', time: '09:15 am' },
-    { id: '02', name: 'Alex Johnson', time: '09:10 am' },
-    { id: '03', name: 'Priya Sharma', time: '08:00 am' },
-    { id: '04', name: 'Daniel Kim', time: '08:13 am' },
-    { id: '05', name: 'Maria Gonzalez', time: '09:13 am' },
-    { id: '06', name: 'Aisha Khan', time: '09:29 am' },
-    { id: '07', name: 'Michael Brown', time: '09:13 am' },
-    { id: '08', name: 'Emily Chen', time: '08:00 am' },
-    { id: '09', name: 'Robert Wilson', time: '09:13 am' },
-    { id: '10', name: 'Sofia Martinez', time: '10:07 am' },
-    { id: '11', name: 'Liam O\'Connor', time: '10:05 am' },
-    { id: '12', name: 'Noah Patel', time: '10:51 am' },
-    { id: '13', name: 'John Laby', time: '09:45 am' },
-  ];
-
+ 
   return (
     // 1. OUTER BORDER WRAPPER (Metallic Gradient Border)
     <div className="flex-1 mt-4 relative flex flex-col rounded-t-[30px] p-[1px] bg-gradient-to-r from-[#DFDFDF] via-[#BCBCBC] to-[#DFDFDF] overflow-hidden isolate shadow-[0_-8px_30px_rgba(0,0,0,0.04)]">
