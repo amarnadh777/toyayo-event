@@ -58,7 +58,7 @@ const AlreadyCheckedInModal = ({
         {/* Close Button */}
         <button
             onClick={onClose}
-            className="mx-auto flex w-[220px] items-center justify-center rounded-[14px] border border-black py-4 text-lg font-bold text-black transition-colors hover:bg-gray-50 active:bg-gray-100"
+            className="mx-auto flex w-[155px] items-center justify-center rounded-[14px] border border-black py-4 text-lg font-bold text-black transition-colors hover:bg-gray-50 active:bg-gray-100"
         >
             Close
         </button>

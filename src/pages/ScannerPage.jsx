@@ -7,174 +7,171 @@ import { scanParticipant } from '../api/api';
 
 const ScannerPage = () => {
   const [isFlashOn, setIsFlashOn] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  
   const videoRef = useRef(null);
   const scannerRef = useRef(null);
   const overlayRef = useRef(null);
   const navigate = useNavigate();
-const [zoomLevel, setZoomLevel] = useState(1)
-const trackRef = useRef(null);
+  
+  // Audio Refs
+  const scanSoundRef = useRef(new Audio("/scanSound.mp3"));
+  const invalidSoundRef = useRef(new Audio("/invalid.mp3"));
 
-
-async function zoom() {
-  console.log("Zoom button clicked");
-  const track = trackRef.current;
-
-   if (!track) return;
-   const capabilities = track.getCapabilities();
-   if (!capabilities.zoom) {
-     alert("Zoom not supported on this device/camera.");
-     return;
-   } 
-
-  try {
-        let newZoom = zoomLevel + 0.5;
-
-        
-    if (newZoom > capabilities.zoom.max) {
-      newZoom = capabilities.zoom.min;
+  // --- 1. FIXED ZOOM LOGIC ---
+  const handleZoom = async () => {
+    const nextZoom = zoomLevel === 1 ? 2 : zoomLevel === 2 ? 4 : 1;
+    
+    const video = videoRef.current;
+    if (!video || !video.srcObject) {
+        setZoomLevel(nextZoom); 
+        return;
     }
-    await track.applyConstraints({
-      advanced: [{ zoom: newZoom }]
-    });
- setZoomLevel(newZoom);
-  } catch (error) {
-       console.error("Zoom error:", err);
-  }
 
-}
+    const track = video.srcObject.getVideoTracks()[0];
+    if (!track) return;
 
+    const capabilities = track.getCapabilities();
 
-
-
-
-
-  const toggleFlash = async () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const track = videoRef.current.srcObject.getVideoTracks()[0];
-      const capabilities = track.getCapabilities();
-      if (capabilities.torch) {
-        try {
-          await track.applyConstraints({ advanced: [{ torch: !isFlashOn }] });
-          setIsFlashOn(!isFlashOn);
-        } catch (err) {
-          console.error("Flashlight error:", err);
-        }
-      } else {
-        alert("Flashlight not supported on this device/camera.");
+    if ('zoom' in capabilities) {
+      try {
+        const maxZoom = capabilities.zoom.max;
+        const targetZoom = Math.min(nextZoom, maxZoom);
+        
+        await track.applyConstraints({
+          advanced: [{ zoom: targetZoom }]
+        });
+        setZoomLevel(nextZoom);
+      } catch (err) {
+        console.error("Zoom failed:", err);
       }
+    } else {
+      setZoomLevel(nextZoom);
     }
   };
 
-  useEffect(() => {
+  // --- 2. FIXED FLASH LOGIC ---
+  const toggleFlash = async () => {
+    const video = videoRef.current;
+    if (!video || !video.srcObject) return;
 
-  const video = videoRef.current;
-  const overlay = overlayRef.current;
+    const track = video.srcObject.getVideoTracks()[0];
+    const capabilities = track.getCapabilities();
 
-  let isScanning = true; // prevent multiple scans
-
-  const qrScanner = new QrScanner(
-
-    video,
-
-    async (result) => {
-
-      // stop if already processing
-      if (!isScanning) return;
-
-      isScanning = false;
-
+    if (capabilities.torch) {
       try {
-
-        const qrCode = result.data;
-
-        console.log("QR detected:", qrCode);
-
-        // call backend API
-        const response = await scanParticipant(qrCode);
-
-        console.log("API response:", response);
-
-        // stop camera after scan
-        await qrScanner.stop();
-
-        // navigate with correct status
-        navigate("/home", {
-          state: {
-            scanStatus: response.result, // success / invalid_qrcode / already_checked_in
-            participant: response.participant || null,
-            message: response.message
-          }
-        });
-
-      } catch (error) {
-
-        console.error("Scan API error:", error);
-
-        await qrScanner.stop();
-
-        navigate("/home", {
-          state: {
-            scanStatus: "server_error",
-            message: "Server error"
-          }
-        });
-
+        await track.applyConstraints({ advanced: [{ torch: !isFlashOn }] });
+        setIsFlashOn(!isFlashOn);
+      } catch (err) {
+        console.error("Flashlight error:", err);
       }
-
-    },
-
-    {
-      returnDetailedScanResult: true,
-      highlightScanRegion: true,
-      highlightCodeOutline: true,
-      overlay: overlay
+    } else {
+      alert("Flashlight not supported on this device/camera.");
     }
+  };
 
-  );
+  // --- 3. SCANNER LIFECYCLE ---
+  useEffect(() => {
+    const video = videoRef.current;
+    const overlay = overlayRef.current;
+    if (!video) return;
 
-  scannerRef.current = qrScanner;
+    let isScanning = true;
 
-  qrScanner.start()
-    .catch((err) =>
-      console.error("QR Scanner error:", err)
+    const qrScanner = new QrScanner(
+      video,
+      async (result) => {
+        if (!isScanning) return;
+        isScanning = false;
+
+        try {
+          const qrCode = result.data;
+          
+          const response = await scanParticipant(qrCode);
+          
+          if(response.result === "success") {
+            try {
+                scanSoundRef.current.currentTime = 0;
+                await scanSoundRef.current.play();
+                if (navigator.vibrate) navigator.vibrate(200);
+            } catch(e) { console.error(e); }
+          }
+          
+          if(response.result === "invalid_qrcode" || response.result === "already_checked_in") {
+             try {
+                invalidSoundRef.current.currentTime = 0;
+                await invalidSoundRef.current.play();
+                if (navigator.vibrate) navigator.vibrate([200]);
+             } catch(e) { console.error(e); }
+          }
+
+          qrScanner.stop();
+          
+          navigate("/home", {
+            state: {
+              scanStatus: response.result,
+              participant: response.participant || null,
+              message: response.message
+            }
+          });
+
+        } catch (error) {
+          console.error("Scan API error:", error);
+          qrScanner.stop();
+          navigate("/home", {
+            state: {
+              scanStatus: "server_error",
+              message: "Server error"
+            }
+          });
+        }
+      },
+      {
+        returnDetailedScanResult: true,
+        highlightScanRegion: true,
+        highlightCodeOutline: true,
+        overlay: overlay,
+        preferredCamera: 'environment'
+      }
     );
 
-  return () => {
+    scannerRef.current = qrScanner;
 
-    qrScanner.stop();
-    qrScanner.destroy();
+    qrScanner.start().catch((err) => console.error("QR Scanner error:", err));
 
-  };
-
-}, [navigate]);
-
-
-
-
-
+    return () => {
+      qrScanner.stop();
+      qrScanner.destroy();
+    };
+  }, [navigate]);
 
   return (
-    // MAIN CONTAINER: Fixed to screen height, no scrolling
-    <div className="relative h-screen w-full overflow-hidden bg-black font-sans">
-      
+    // FIX: Changed 'h-screen' to 'h-[100dvh]' and added 'overscroll-none'
+    // '100dvh' adapts to mobile browser bars appearing/disappearing.
+    <div className="relative h-[100dvh] w-full overflow-hidden bg-black font-sans overscroll-none touch-none">
+ 
       {/* 1. Camera Feed */}
       <video
         ref={videoRef}
-        className="absolute top-0 left-0 w-full h-full object-cover"
+        className="absolute top-0 left-0 w-full h-full object-cover transition-transform duration-300"
+        style={{ transform: `scale(${zoomLevel})` }}
         playsInline
         muted
       ></video>
-
-      {/* 2. Scanner Highlight Overlay */}
+  
+      {/* 2. Scanner Highlight Overlay (Legacy) */}
       <div 
         ref={overlayRef} 
         className="absolute top-0 left-0 w-full h-full pointer-events-none"
         style={{ filter: 'hue-rotate(200deg) brightness(1.5)' }}
       ></div>
+      
+      {/* 3. The CSS Mask Overlay */}
+      <div className="overlay-content pointer-events-none">
+        <div></div>
+      </div>
 
-
-
-      {/* 3. UI Layer: Flex column to manage vertical space */}
+      {/* 4. UI Layer */}
       <div className="absolute inset-0 z-10 flex flex-col items-center pointer-events-none">
         
         {/* --- Top Header --- */}
@@ -182,10 +179,10 @@ async function zoom() {
           <img src={RAV4} alt="RAV4" className="h-8 drop-shadow-md" />
         </div>
 
-        {/* --- Main Content Area (Takes all remaining space) --- */}
+        {/* --- Main Content Area --- */}
         <div className="flex-1 flex flex-col items-center justify-center w-full">
             
-            {/* A. The Viewfinder Box */}
+            {/* A. The Viewfinder Box (Visual Border) */}
             <div className="relative w-64 h-64 sm:w-72 sm:h-72">
                 {/* Corners */}
                 <div className="absolute top-0 left-0 w-8 h-8 border-t-[3px] border-l-[3px] border-gray-300 rounded-tl-2xl"></div>
@@ -197,13 +194,11 @@ async function zoom() {
                 <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-[120%] h-[2px] border-t-[2px] border-dashed border-blue-400 absolute opacity-60"></div>
                     <div className="h-[120%] w-[2px] border-l-[2px] border-dashed border-blue-400 absolute opacity-60"></div>
-                    <div className="relative z-10 text-blue-400 text-lg font-light tracking-widest animate-pulse drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]">
-                        
-                    </div>
+                    <div className="relative z-10 text-blue-400 text-lg font-light tracking-widest animate-pulse drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]"></div>
                 </div>
             </div>
 
-            {/* B. Footer Controls (Immediately below scanner) */}
+            {/* B. Footer Controls */}
             <div className="mt-12 pointer-events-auto">
                 <div className="flex items-center justify-between w-[20em] h-14 bg-gray-200/90 backdrop-blur-sm rounded-full px-1 shadow-lg border border-white/20">
                     <button 
@@ -213,18 +208,16 @@ async function zoom() {
                         <Flashlight size={24} fill={isFlashOn ? "currentColor" : "none"} />
                     </button>
                     <div className="w-[1px] h-6 bg-gray-400 opacity-50"></div>
-                    <button className="flex-1 h-full flex items-center justify-center text-gray-900 font-bold text-lg rounded-r-full"
-                    
-                    onClick={zoom}
+                    <button 
+                        className="flex-1 h-full flex items-center justify-center text-gray-900 font-bold text-lg rounded-r-full"
+                        onClick={handleZoom}
                     >
-                        1x
+                        {zoomLevel}x
                     </button>
                 </div>
             </div>
 
         </div> 
-        {/* End of Main Content Area */}
-
       </div>
     </div>
   );

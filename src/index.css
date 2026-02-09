@@ -1,1 +1,62 @@
 @import "tailwindcss";
+*{
+    font-family: 'inter', sans-serif;
+}
+
+
+.modal-overlay {
+  position: fixed;      /* Stays in place when scrolling */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+  z-index: 9999;        /* Ensures it sits on top of everything */
+  
+  /* Centering Logic */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Optional: Blur effect */
+  backdrop-filter: blur(4px);
+}
+.overlay-content {
+  position: absolute;
+  inset: 0;
+  z-index: 2; 
+  background: rgba(0, 0, 0, 0.7);
+  
+  --hole-size: 230px; 
+
+  mask-image: 
+    linear-gradient(black, black), 
+    linear-gradient(black, black);
+  
+  mask-size: var(--hole-size) var(--hole-size), 100% 100%;
+  mask-repeat: no-repeat;
+  
+  /* --- ADJUST POSITION HERE --- */
+  
+  /* Option 1: Move it UP (e.g., 40% from top instead of 50%) */
+  mask-position: center 48%; 
+
+  /* Option 2: Move it DOWN */
+  /* mask-position: center 60%; */
+
+  /* Option 3: Exact Pixels from top (e.g., 200px from top) */
+  /* mask-position: center 200px; */
+
+  
+  mask-composite: exclude; 
+  -webkit-mask-composite: destination-out;
+}
+
+@media (min-width: 640px) {
+  .overlay-content {
+    --hole-size: 265px;
+  }
+}
+
+
+
