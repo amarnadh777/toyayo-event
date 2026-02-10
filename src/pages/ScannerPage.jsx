@@ -175,7 +175,7 @@ const ScannerPage = () => {
       <div className="absolute inset-0 z-10 flex flex-col items-center pointer-events-none">
         
         {/* --- Top Header --- */}
-        <div className="mt-8 sm:mt-12 flex-none">
+        <div className="mt-12 sm:mt-12 flex-none">
           <img src={RAV4} alt="RAV4" className="h-8 drop-shadow-md" />
         </div>
 

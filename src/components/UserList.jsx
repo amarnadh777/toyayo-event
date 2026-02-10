@@ -32,7 +32,7 @@ const UserList = ({users}) => {
         {/* HEADER */}
         <div className="flex-none px-7 pt-7 pb-0">
           <h2 className="font-bold text-gray-900 text-[15px]">User List</h2>
-          <div className="w-full h-[1px] bg-gray-100 mt-4 mb-2"></div>
+          <div className="w-full h-[1px] bg-[#CCCCCC] mt-4 mb-2"></div>
         </div>
 
         {/* LIST SECTION - SCROLLBAR FIX 
@@ -64,18 +64,52 @@ const UserList = ({users}) => {
         </div>
 
         {/* --- FIXED DARK GRADIENT --- */}
-        <div className="absolute bottom-0 w-full h-[56px] rounded-t-[20px] bg-[radial-gradient(circle_at_top,#2E5BA9_0%,#000000_100%)] shadow-[0_-17px_30px_-20px_rgba(0,0,0,0.25)] border-t border-white/10 z-10"></div>
+        <div
+  className="
+    absolute
+    bottom-0
+    left-0
+    w-full
+    h-[56px]
+    rounded-t-[20px]
+    z-10
 
-        {/* BUTTON */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
-            <button className="w-[66px] h-[66px] rounded-[20px] flex items-center justify-center shadow-2xl border border-white/10 relative active:scale-95 transition-transform group bg-[radial-gradient(50%_50%_at_50%_50%,#254A88_0%,#1A3460_57%,#040910_100%)]"
-            onClick={() => { navigate("/scanner") }}
-            >
-            <img src={qrcodesvg} alt="Scan QR" className="w-8 h-8 z-10" />
-            <div className="absolute inset-3.5 border border-dashed border-gray-500/40 rounded-xl"></div>
-            <div className="absolute inset-0 rounded-[20px] bg-gradient-to-t from-white/5 to-transparent pointer-events-none"></div>
-            </button>
-        </div>
+    bg-[radial-gradient(90.37%_100%_at_50%_0%,#2E5BA9_0%,#000000_100%)]
+
+    shadow-[0px_17px_30px_-20px_rgba(0,0,0,0.25)]
+  "
+></div>
+
+
+<div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
+  <button
+    onClick={() => navigate("/scanner")}
+    className="
+      w-[66px]
+      h-[66px]
+      rounded-[20px]
+      flex
+      items-center
+      justify-center
+      relative
+      border border-white/[0.06]
+      active:scale-95
+      transition-all
+      
+      bg-[radial-gradient(98.48%_98.48%_at_50%_1.52%,#040910_56.73%,#1A3460_89.42%,#254A88_100%)]
+
+      shadow-[inset_0px_2px_6px_rgba(255,255,255,0.06),0px_8px_20px_rgba(0,0,0,0.8)]
+    "
+  >
+    
+
+    <img src={qrcodesvg} className="w-[26px] h-[26px] z-10" />
+  </button>
+</div>
+
+
+
+
 
       </div>
     </div>
