@@ -32,7 +32,7 @@ const UserList = ({users}) => {
         {/* HEADER */}
         <div className="flex-none px-7 pt-7 pb-0">
           <h2 className="font-bold text-gray-900 text-[15px]">User List</h2>
-          <div className="w-full h-[1px] bg-[#CCCCCC] mt-4 mb-2"></div>
+          <div className="w-full h-[1px] bg-[ #CCCCCC] mt-4 mb-2"></div>
         </div>
 
         {/* LIST SECTION - SCROLLBAR FIX 
@@ -103,7 +103,7 @@ const UserList = ({users}) => {
   >
     
 
-    <img src={qrcodesvg} className="w-[26px] h-[26px] z-10" />
+    <img src={qrcodesvg} className="w-[32px] h-[32px] z-10" />
   </button>
 </div>
 
