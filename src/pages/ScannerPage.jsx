@@ -171,16 +171,16 @@
           {/* Viewfinder Box */}
           <div className="relative w-64 h-64 sm:w-72 sm:h-72">
               {/* Corners */}
-              <div className="absolute top-0 left-0 w-8 h-8 border-t-[3px] border-l-[3px] border-gray-300 rounded-tl-2xl"></div>
-              <div className="absolute top-0 right-0 w-8 h-8 border-t-[3px] border-r-[3px] border-gray-300 rounded-tr-2xl"></div>
-              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-[3px] border-l-[3px] border-gray-300 rounded-bl-2xl"></div>
-              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-[3px] border-r-[3px] border-gray-300 rounded-br-2xl"></div>
+              <div className="absolute top-0 left-0 size-16 border-t-[3px] border-l-[3px] border-gray-300 rounded-tl-4xl"></div>
+              <div className="absolute top-0 right-0 size-16 border-t-[3px] border-r-[3px] border-gray-300 rounded-tr-4xl"></div>
+              <div className="absolute bottom-0 left-0 size-16 border-b-[3px] border-l-[3px] border-gray-300 rounded-bl-4xl"></div>
+              <div className="absolute bottom-0 right-0 size-16 border-b-[3px] border-r-[3px] border-gray-300 rounded-br-4xl"></div>
 
               {/* Crosshair */}
-              <div className="absolute inset-0 flex items-center justify-center">
+              {/* <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-[120%] h-[2px] border-t-[2px] border-dashed border-blue-400 absolute opacity-60"></div>
                   <div className="h-[120%] w-[2px] border-l-[2px] border-dashed border-blue-400 absolute opacity-60"></div>
-              </div>
+              </div> */}
           </div>
 
           {/* Footer Controls - Positioned below the box */}
