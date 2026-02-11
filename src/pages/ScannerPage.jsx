@@ -14,14 +14,11 @@ const ScannerPage = () => {
   const overlayRef = useRef(null);
   const navigate = useNavigate();
   
-  // Audio Refs
   const scanSoundRef = useRef(new Audio("/scanSound.mp3"));
   const invalidSoundRef = useRef(new Audio("/invalid.mp3"));
 
-  // --- 1. FIXED ZOOM LOGIC ---
   const handleZoom = async () => {
     const nextZoom = zoomLevel === 1 ? 2 : zoomLevel === 2 ? 4 : 1;
-    
     const video = videoRef.current;
     if (!video || !video.srcObject) {
         setZoomLevel(nextZoom); 
@@ -37,7 +34,6 @@ const ScannerPage = () => {
       try {
         const maxZoom = capabilities.zoom.max;
         const targetZoom = Math.min(nextZoom, maxZoom);
-        
         await track.applyConstraints({
           advanced: [{ zoom: targetZoom }]
         });
@@ -50,7 +46,6 @@ const ScannerPage = () => {
     }
   };
 
-  // --- 2. FIXED FLASH LOGIC ---
   const toggleFlash = async () => {
     const video = videoRef.current;
     if (!video || !video.srcObject) return;
@@ -70,7 +65,6 @@ const ScannerPage = () => {
     }
   };
 
-  // --- 3. SCANNER LIFECYCLE ---
   useEffect(() => {
     const video = videoRef.current;
     const overlay = overlayRef.current;
@@ -86,7 +80,6 @@ const ScannerPage = () => {
 
         try {
           const qrCode = result.data;
-          
           const response = await scanParticipant(qrCode);
           
           if(response.result === "success") {
@@ -106,7 +99,6 @@ const ScannerPage = () => {
           }
 
           qrScanner.stop();
-          
           navigate("/home", {
             state: {
               scanStatus: response.result,
@@ -136,7 +128,6 @@ const ScannerPage = () => {
     );
 
     scannerRef.current = qrScanner;
-
     qrScanner.start().catch((err) => console.error("QR Scanner error:", err));
 
     return () => {
@@ -146,8 +137,6 @@ const ScannerPage = () => {
   }, [navigate]);
 
   return (
-    // FIX: Changed 'h-screen' to 'h-[100dvh]' and added 'overscroll-none'
-    // '100dvh' adapts to mobile browser bars appearing/disappearing.
     <div className="relative h-[100dvh] w-full overflow-hidden bg-black font-sans overscroll-none touch-none">
  
       {/* 1. Camera Feed */}
@@ -159,7 +148,7 @@ const ScannerPage = () => {
         muted
       ></video>
   
-      {/* 2. Scanner Highlight Overlay (Legacy) */}
+      {/* 2. Scanner Highlight Overlay */}
       <div 
         ref={overlayRef} 
         className="absolute top-0 left-0 w-full h-full pointer-events-none"
@@ -172,52 +161,47 @@ const ScannerPage = () => {
       </div>
 
       {/* 4. UI Layer */}
-      <div className="absolute inset-0 z-10 flex flex-col items-center pointer-events-none">
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none">
         
-        {/* --- Top Header --- */}
-        <div className="mt-12 sm:mt-12 flex-none">
-          <img src={RAV4} alt="RAV4" className="h-8 drop-shadow-md" />
+        {/* --- Logo positioned ABOVE the scanner box --- */}
+        <div className="mb-12">
+          <img src={RAV4} alt="RAV4 Logo" className="h-8 drop-shadow-md" />
         </div>
 
-        {/* --- Main Content Area --- */}
-        <div className="flex-1 flex flex-col items-center justify-center w-full">
-            
-            {/* A. The Viewfinder Box (Visual Border) */}
-            <div className="relative w-64 h-64 sm:w-72 sm:h-72">
-                {/* Corners */}
-                <div className="absolute top-0 left-0 w-8 h-8 border-t-[3px] border-l-[3px] border-gray-300 rounded-tl-2xl"></div>
-                <div className="absolute top-0 right-0 w-8 h-8 border-t-[3px] border-r-[3px] border-gray-300 rounded-tr-2xl"></div>
-                <div className="absolute bottom-0 left-0 w-8 h-8 border-b-[3px] border-l-[3px] border-gray-300 rounded-bl-2xl"></div>
-                <div className="absolute bottom-0 right-0 w-8 h-8 border-b-[3px] border-r-[3px] border-gray-300 rounded-br-2xl"></div>
+        {/* Viewfinder Box */}
+        <div className="relative w-64 h-64 sm:w-72 sm:h-72">
+            {/* Corners */}
+            <div className="absolute top-0 left-0 w-8 h-8 border-t-[3px] border-l-[3px] border-gray-300 rounded-tl-2xl"></div>
+            <div className="absolute top-0 right-0 w-8 h-8 border-t-[3px] border-r-[3px] border-gray-300 rounded-tr-2xl"></div>
+            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-[3px] border-l-[3px] border-gray-300 rounded-bl-2xl"></div>
+            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-[3px] border-r-[3px] border-gray-300 rounded-br-2xl"></div>
 
-                {/* Crosshair & Text */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-[120%] h-[2px] border-t-[2px] border-dashed border-blue-400 absolute opacity-60"></div>
-                    <div className="h-[120%] w-[2px] border-l-[2px] border-dashed border-blue-400 absolute opacity-60"></div>
-                    <div className="relative z-10 text-blue-400 text-lg font-light tracking-widest animate-pulse drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]"></div>
-                </div>
+            {/* Crosshair */}
+            <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-[120%] h-[2px] border-t-[2px] border-dashed border-blue-400 absolute opacity-60"></div>
+                <div className="h-[120%] w-[2px] border-l-[2px] border-dashed border-blue-400 absolute opacity-60"></div>
             </div>
+        </div>
 
-            {/* B. Footer Controls */}
-            <div className="mt-12 pointer-events-auto">
-                <div className="flex items-center justify-between w-[20em] h-14 bg-gray-200/90 backdrop-blur-sm rounded-full px-1 shadow-lg border border-white/20">
-                    <button 
-                        onClick={toggleFlash}
-                        className={`flex-1 h-full flex items-center justify-center rounded-l-full transition-colors ${isFlashOn ? 'text-yellow-600' : 'text-gray-700'}`}
-                    >
-                        <Flashlight size={24} fill={isFlashOn ? "currentColor" : "none"} />
-                    </button>
-                    <div className="w-[1px] h-6 bg-gray-400 opacity-50"></div>
-                    <button 
-                        className="flex-1 h-full flex items-center justify-center text-gray-900 font-bold text-lg rounded-r-full"
-                        onClick={handleZoom}
-                    >
-                        {zoomLevel}x
-                    </button>
-                </div>
+        {/* Footer Controls - Positioned below the box */}
+        <div className="mt-12 pointer-events-auto">
+            <div className="flex items-center justify-between w-[210px] h-[33px] bg-gradient-to-b from-[#BABEC5] to-[#F3F3F3] backdrop-blur-sm rounded-full px-1 shadow-lg border border-white/20">
+                <button 
+                    onClick={toggleFlash}
+                    className={`flex-1 h-full flex items-center justify-center rounded-l-full transition-colors ${isFlashOn ? 'text-yellow-600' : 'text-gray-700'}`}
+                >
+                    <Flashlight size={24} fill={isFlashOn ? "currentColor" : "none"} />
+                </button>
+                <div className="w-[1px] h-6 bg-gray-400 opacity-50"></div>
+                <button 
+                    className="flex-1 h-full flex items-center justify-center text-gray-900 font-bold text-lg rounded-r-full"
+                    onClick={handleZoom}
+                >
+                    {zoomLevel}x
+                </button>
             </div>
+        </div>
 
-        </div> 
       </div>
     </div>
   );

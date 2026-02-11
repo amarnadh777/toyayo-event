@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 const UserRow = ({ id, name, time }) => (
   <div className="flex items-center justify-between py-3.5 px-2 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors cursor-pointer group">
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-2">
       <div className="w-[38px] h-[31px] rounded-[10px] bg-gradient-to-b from-[#EFF3FB] to-[#DBE4F5] text-black font-bold text-sm flex items-center justify-center shadow-sm group-hover:from-blue-100 group-hover:to-blue-200 transition-all">
         {id}
       </div>
