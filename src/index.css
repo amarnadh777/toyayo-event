@@ -1,6 +1,24 @@
 @import "tailwindcss";
-*{
-    font-family: 'inter', sans-serif;
+
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'MyCustomFont';
+  /* Try the relative path first, or absolute if in 'public' */
+  src: url('../assets/fonts/UNIVERSNEXTPRO-REGULAR.TTF') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Use :root or @theme to play nice with Tailwind */
+:root {
+  --font-custom: 'MyCustomFont', sans-serif;
+}
+
+/* Apply it globally */
+html, body, input, button, textarea {
+  font-family: var(--font-custom) !important;
 }
 
 

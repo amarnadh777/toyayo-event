@@ -95,7 +95,7 @@ const UserList = ({users}) => {
       items-center
       justify-center
       relative
-      border border-white/[0.06]
+      border border-black
       active:scale-95
       transition-all
       
@@ -103,6 +103,8 @@ const UserList = ({users}) => {
 
       shadow-[inset_0px_2px_6px_rgba(255,255,255,0.06),0px_8px_20px_rgba(0,0,0,0.8)]
     "
+
+    
   >
     
 
