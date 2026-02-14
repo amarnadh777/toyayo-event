@@ -63,19 +63,19 @@ const UserListScreen = () => {
 
         setScannedParticipants(response.checkedInParticipants);
 
-        const tranformedUserlist =
-          response.participantsList.map((participant) => ({
-            id: participant.listNumber,
-            name: participant.name,
-            time: participant.checkedInAt
-              ? new Date(participant.checkedInAt)
-                  .toLocaleTimeString("en-IN", {
-                    hour: "numeric",
-                    minute: "2-digit",
-                    hour12: true
-                  })
-              : "Unknown Time"
-          }));
+     const tranformedUserlist = response.participantsList.map((participant) => ({
+  id: participant.listNumber,
+  name: participant.name,
+  time: participant.checkedInAt
+    ? new Date(participant.checkedInAt).toLocaleTimeString("en-AE", {
+        timeZone: "Asia/Dubai",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      })
+    : "Unknown Time"
+}));
+
 
         setUserList(tranformedUserlist);
 
