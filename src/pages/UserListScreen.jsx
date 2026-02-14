@@ -63,12 +63,12 @@ const UserListScreen = () => {
 
         setScannedParticipants(response.checkedInParticipants);
 
-     const tranformedUserlist = response.participantsList.map((participant) => ({
+   const tranformedUserlist = response.participantsList.map((participant) => ({
   id: participant.listNumber,
   name: participant.name,
   time: participant.checkedInAt
-    ? new Date(participant.checkedInAt).toLocaleTimeString("en-AE", {
-        timeZone: "Asia/Dubai",
+    ? new Date(participant.checkedInAt).toLocaleTimeString("en-SA", {
+        timeZone: "Asia/Riyadh",   // 🇸🇦 Saudi Arabia timezone
         hour: "2-digit",
         minute: "2-digit",
         hour12: true
