@@ -16,7 +16,7 @@
     
     const scanSoundRef = useRef(new Audio("/scanSound.mp3"));
     const invalidSoundRef = useRef(new Audio("/invalid.mp3"));
-    const errorSoundRef = useRef(new Audio("./error.mp3"))
+    const alreadyCheckedSounRef = useRef(new Audio("./alreadyChecked.mp3"))
 
     const handleZoom = async () => {
       const nextZoom = zoomLevel === 1 ? 2 : zoomLevel === 2 ? 4 : 1;
@@ -91,13 +91,26 @@
               } catch(e) { console.error(e); }
             }
             
-            if(response.result === "invalid_qrcode" || response.result === "already_checked_in") {
+            if(response.result === "invalid_qrcode") {
               try {
-                  errorSoundRef.current.currentTime = 0;
-                  await errorSoundRef.current.play();
+                  invalidSoundRef.current.currentTime = 0;
+                  await invalidSoundRef.current.play();
                   if (navigator.vibrate) navigator.vibrate([200]);
               } catch(e) { console.error(e); }
             }
+
+
+             
+            if( response.result === "already_checked_in") {
+              try {
+                  alreadyCheckedSounRef.current.currentTime = 0;
+                  await alreadyCheckedSounRef.current.play();
+                  if (navigator.vibrate) navigator.vibrate([200]);
+              } catch(e) { console.error(e); }
+            }
+
+
+
 
             qrScanner.stop();
             navigate("/home", {
