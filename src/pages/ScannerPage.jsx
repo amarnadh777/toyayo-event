@@ -101,7 +101,7 @@
 
 
              
-            if( response.result === "already_checked_in") {
+            if(response.result === "already_checked_in") {
               try {
                   alreadyCheckedSounRef.current.currentTime = 0;
                   await alreadyCheckedSounRef.current.play();

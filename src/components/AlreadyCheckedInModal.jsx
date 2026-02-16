@@ -54,7 +54,17 @@ const formatListNo = (num) => String(num).padStart(2, '0');
         {/* Registration Info */}
         <div className="mb-8 space-y-2">
           <p className="text-gray-500 font-medium text-sm">Registration Name</p>
-          <p className="text-3xl font-bold text-[#EB0A1E]">{data.name}</p>
+        <p 
+  className={`font-bold text-[#EB0A1E] break-words leading-tight mx-auto ${
+    (data?.name || "").length > 22 
+      ? 'text-xl' 
+      : (data?.name || "").length > 14 
+        ? 'text-2xl' 
+        : 'text-3xl'
+  }`}
+>
+  {data?.name}
+</p>
         </div>
 
         {/* Close Button */}

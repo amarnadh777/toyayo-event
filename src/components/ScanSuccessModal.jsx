@@ -41,7 +41,17 @@ const ScanSuccessModal = ({ isOpen, onClose, name = "Daniel Cooper" }) => {
         {/* Info */}
         <div className="mb-8 space-y-2">
           <p className="text-gray-500 font-medium">Registration Name</p>
-          <p className="text-3xl font-bold text-[#EB0A1E]">{name}</p>
+          <p 
+            className={`font-bold text-[#EB0A1E] break-words leading-tight ${
+              name.length > 22 
+                ? 'text-xl' 
+                : name.length > 14 
+                  ? 'text-2xl' 
+                  : 'text-3xl'
+            }`}
+          >
+            {name}
+          </p>
         </div>
 
         {/* Close Button */}
