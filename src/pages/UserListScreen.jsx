@@ -153,28 +153,26 @@ const UserListScreen = () => {
 
       {/* Already Checked In */}
       {activeModal === "already_checked_in" && (
+<AlreadyCheckedInModal
+  isOpen={true}
+  onClose={handleClose}
+  data={{
+    name: modalParticipant?.name || "Unknown User",
 
-        <AlreadyCheckedInModal
-          isOpen={true}
-          onClose={handleClose}
-          data={{
+    time: modalParticipant?.checkedInAt
+      ? new Date(modalParticipant.checkedInAt)
+          .toLocaleTimeString("en-SA", {
+            timeZone: "Asia/Riyadh",
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true
+          })
+      : "Unknown Time",
 
-            name: modalParticipant?.name || "Unknown User",
+    listNo: modalParticipant?.listNumber || "Unknown List No."
+  }}
+/>
 
-            time: modalParticipant?.checkedInAt
-              ? new Date(modalParticipant.checkedInAt)
-                  .toLocaleTimeString("en-IN", {
-                    hour: "numeric",
-                    minute: "2-digit",
-                    hour12: true
-                  })
-              : "Unknown Time",
-
-            listNo: modalParticipant?.listNumber
-              || "Unknown List No."
-
-          }}
-        />
 
       )}
 

@@ -36,7 +36,7 @@ const ScanSuccessModal = ({ isOpen, onClose, name = "Daniel Cooper" }) => {
         <p className="mt-2 text-gray-500">QR code scanned successfully.</p>
 
         {/* Divider */}
-        <div className="my-6 border-t border-gray-100"></div>
+        <div className="my-6 mx-8 border-t border-[#DBDBDB]"></div>
 
         {/* Info */}
         <div className="mb-8 space-y-2">

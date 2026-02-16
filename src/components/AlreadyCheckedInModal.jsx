@@ -8,6 +8,7 @@ const AlreadyCheckedInModal = ({
 }) => {
   if (!isOpen) return null;
 
+const formatListNo = (num) => String(num).padStart(2, '0');
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
 
@@ -32,22 +33,23 @@ const AlreadyCheckedInModal = ({
         </p>
 
         {/* Divider Top */}
-        <div className="mt-6 mb-4 border-t border-gray-100 w-3/4 mx-auto"></div>
+        <div className="mt-6 mb-4 border-t border-[#DBDBDB] w-3/4 mx-auto"></div>
 
         {/* Data Grid (List No & Time) */}
         <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="text-center border-r border-gray-100 last:border-0">
                 <p className="text-xs text-gray-500 mb-1 font-medium">List No.</p>
-                <p className="text-lg font-bold text-gray-900">{data.listNo}</p>
+                <p className="text-lg font-bold text-gray-900">{ formatListNo(data.listNo)  }</p>
             </div>
             <div className="text-center">
                 <p className="text-xs text-gray-500 mb-1 font-medium">Time</p>
                 <p className="text-lg font-bold text-gray-900">{data.time}</p>
-            </div>
+                
+            </div>  
         </div>
 
         {/* Divider Bottom */}
-        <div className="mb-6 border-t border-gray-100 w-3/4 mx-auto"></div>
+        <div className="mb-6 border-t border-[#DBDBDB] w-3/4 mx-auto"></div>
 
         {/* Registration Info */}
         <div className="mb-8 space-y-2">
